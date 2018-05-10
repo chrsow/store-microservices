@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html ng-app="store">
+
+  <head>
+    <title>The Store</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=.7">
+
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.css">
+    <link rel="stylesheet" href="stylesheets/style.css">
+
+    <script>
+        // globally set the API URLS
+        var productsApi = '';
+        var cartApi     = '';
+        var reviewApi   = '';
+    </script>
+
+  </head>
+
+  <body>
+
+    <store-header></store-header>
+
+    <div>
+      <div class="main">
+
+        <div ng-view></div>
+        <!-- angular templating -->
+        <!-- this is where content will be injected -->
+
+      </div>
+    </div>
+
+    <!-- Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular-route.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/async/1.4.0/async.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.js"></script>
+
+    <!-- app code -->
+    <script src="client.js"></script>
+    <script src="products/products.js"></script>
+    <script src="cart/cart.js"></script>
+    <script src="reviews/review.js"></script>
+  </body>
+</html>
