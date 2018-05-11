@@ -46,7 +46,7 @@ spec:
             defaultMode: 256
       containers:
         - name: mongod-container
-          image: chrsow/store-database:1.0.0
+          image: "chrsow/store-database:1.0.0"
           command:
             - "numactl"
             - "--interleave=all"
