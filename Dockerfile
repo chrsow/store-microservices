@@ -11,7 +11,7 @@ COPY ./package.json /src/package.json
 RUN cd /src; npm install
 
 #export the mongo uri 
-ENV MONGO_URI mongodb://localhost:27017/store-microservices
+ENV MONGO_URI mongodb://store-database:27017/store-microservices
 
 EXPOSE  8080
 CMD ["node", "/src/app.js"]
