@@ -116,11 +116,6 @@ router.post("/register", (req, res) => {
 	}
 });
 
-// login ui
-router.get("/login", (req, res) => {
-	// res.sendFile();
-});
-
 const serverPort = process.env.SERVER_PORT | "8080";
 
 router.listen(serverPort, () => {

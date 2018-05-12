@@ -1,3 +1,5 @@
 generate_key.sh
 package-lock.json
-.index.js.swp
+mongo-api.key
+server.crt
+server.key
