@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: "chrsow/store-cart:1.0.0"
+          image: "chrsow/store-cart:1.0.1"
           ports:
             - name: http
               containerPort: 80
