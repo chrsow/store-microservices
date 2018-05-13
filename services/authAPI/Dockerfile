@@ -4,7 +4,7 @@ FROM node
 COPY . .
 
 # Install app dependencies
-RUN cd /src; npm install
+RUN npm install
 
 EXPOSE  8080
 
