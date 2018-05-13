@@ -38,7 +38,7 @@ router.post("/login", (req, res) => {
 
 	if (!('username' in data) || !('password' in data)) {
 		res.json({
-			result: "Error",
+			success: 0,
 			message: "No username or password",
 		});
 		return;
@@ -60,14 +60,14 @@ router.post("/login", (req, res) => {
 			);
 
 			res.json({
-				result: "OK",
+				success: 1,
 				message: token,
 			});
 
 		} else {
 
 			res.json({
-				result: "Error",
+				success: 1,
 				message: "Invalid Credential",
 			});
 		}
@@ -79,13 +79,13 @@ router.post("/verify", (req, res) => {
 	const data = req.body;
 
 	if (!data.token) {
-		res.json({ error: 1, message: "No jwt token", });
+		res.json({ valid: 0, message: "No jwt token", });
 		return;
 	}
 
 	verify_jwt(data.token, (error, decoded) => {
 		if (error) {
-			res.json({ valid: 0, message: error, });
+			res.json({ valid: 0, message: {'message': error}, });
 		} else {
 			res.json({ valid: 1, message: decoded, });
 		}
