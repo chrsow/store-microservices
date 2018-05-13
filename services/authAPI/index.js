@@ -1,4 +1,6 @@
-const router = require('express')();
+const express = require('express');
+const router = express();
+const app = express();
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 
@@ -11,11 +13,21 @@ const cert = {
 };
 
 // time configuration
-const getTime = () => { return Math.floor(Date.now() / 1000); };
-const tokenTimeLimit = parseInt(process.env.TOKEN_TIME_LIMIT) | (60 * 10);
+const tokenTimeLimit = parseInt(process.env.TOKEN_TIME_LIMIT) | (60 * 30);
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+
+const verify_jwt = (token, callback) => {
+	jwt.verify(
+		token,
+		cert.cert,
+		{
+			algorithms:[algorithm],
+		},
+		callback,
+	);
+};
 
 // load database synchronously
 require('./database.js')(db => {
@@ -37,12 +49,14 @@ router.post("/login", (req, res) => {
 		if (accepted) {
 			const token = jwt.sign(
 				{ 
-					iat: getTime(),
-					exp: getTime() + tokenTimeLimit,
+					username: data.username,
 					permission: ['normal'],
 				},
 				cert.key,
-				{ algorithm: algorithm },
+				{ 
+					algorithm: algorithm,
+					expiresIn: tokenTimeLimit,
+				},
 			);
 
 			res.json({
@@ -65,34 +79,23 @@ router.post("/verify", (req, res) => {
 	const data = req.body;
 
 	if (!data.token) {
-		res.json({ error: 1, message: "No token", });
+		res.json({ error: 1, message: "No jwt token", });
 		return;
 	}
 
-	jwt.verify(
-		data.token, 
-		cert.cert, 
-		{ 
-			algorithms: [algorithm], 
-			clockTimestamp: getTime(), 
-		},
-		(err, decoded) => {
-			if (!err) {
-				res.json({ error: 0, data: decoded, });
-			} else {
-				console.log(err);
-				res.json({ error: 1, message: err, });
-			}
-		},
-	);
-
+	verify_jwt(data.token, (error, decoded) => {
+		if (error) {
+			res.json({ valid: 0, message: error, });
+		} else {
+			res.json({ valid: 1, message: decoded, });
+		}
+	});
 });
 
 // add new user
 router.post("/register", (req, res) => {
 
 	const data = req.body;
-	console.log(data);
 	if (data == undefined) {
 		res.json({ success: 0, message: "No data", });
 	} else if (data.username == undefined) {
@@ -104,6 +107,7 @@ router.post("/register", (req, res) => {
 			if (!result) {
 				db.addUser(data.username, data.password, result => {
 					if (result) {
+						console.log("create new user : " + data.username);
 						res.json({ success: 1, message: "success", });
 					} else {
 						res.json({ success: 0, message: "error", });
@@ -116,9 +120,50 @@ router.post("/register", (req, res) => {
 	}
 });
 
+// update password
+router.post("/update", (req, res) => {
+
+
+	const data = req.body;
+	if (!data) {
+		res.json({ success: 0, message: "No data", });
+	} else if (!data.token) {
+		res.json({ success: 0, message: "No jwt token", });
+	} else if (!data.username || !data.old_password || !data.new_password) {
+		res.json({ success: 0, message: "No username/old_password/new_password", });
+	} else {	
+		verify_jwt(data.token, (error, decoded) => {
+
+			if (error) {
+				res.json({ success: 0, message: "Invalid jwt: " + error, });
+			} else if (decoded.username != data.username) {
+				res.json({ success: 0, message: "Cannot edit others' account", });
+			} else {
+				db.auth(data.username, data.old_password, accepted => {
+
+					if (accepted) {
+						db.updatePassword(data.username, data.new_password, result => {
+							if (result) {
+								res.json({ success: 1, message: "Successfully update password", });
+							} else {
+								res.json({ success: 0, message: "Something went wrong", });
+							}
+						});
+					} else {
+						res.json({ success: 0, message: "Invalid Credential", });
+					}
+				});
+			}
+		});
+	}
+	
+});
+
 const serverPort = process.env.SERVER_PORT | "8080";
 
-router.listen(serverPort, () => {
+app.use('/api', router);
+
+app.listen(serverPort, () => {
 	console.log("listening to : " + serverPort);
 });
 

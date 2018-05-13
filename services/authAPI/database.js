@@ -1,5 +1,8 @@
 var fs = require('fs');
+var sha256 = require('sha256');
+var crypto = require('crypto');
 
+// database info
 const database_api = fs.readFileSync('mongo-api.key').toString().trim();
 const database_cluster = 'auth-ocxap';
 const database_name = 'auth';
@@ -8,19 +11,19 @@ const database_collection = 'user';
 const stitch = require("mongodb-stitch")
 const clientPromise = stitch.StitchClientFactory.create(database_cluster);
 
-var sha256 = require('sha256');
-var crypto = require('crypto');
-
 const generateSalt = () => { return crypto.randomBytes(32).toString('hex'); }
 
 function init(callback) {
 
+	console.log("Initializing the service...");
+
 clientPromise.then(client => {
 
-	console.log("[MongoDB Stitch] Connected to Stitch")
 	var db = client.service('mongodb', 'mongodb-atlas').db(database_name);
 
 	client.authenticate("apiKey", database_api).then(docs => {
+
+	console.log("[MongoDB Stitch] Connected to Stitch")
 
 	const userId = client.authedId();
 	console.log("user id : " + userId);
@@ -66,6 +69,27 @@ clientPromise.then(client => {
 			salt: salt,
 		}).then(() => {
 			console.log("add new user: " + user);
+			callback(true);
+		}).catch(err => {
+			console.log("[MONGO DB]: " + err);
+			callback(false);
+		});
+	};
+
+	db.updatePassword = (user, newpass, callback) => {
+
+		const salt = generateSalt();
+		const hashedPass = sha256(newpass + salt);
+
+		db.collection(database_collection).updateOne({
+			username: user,
+		}, {
+			owner_id: userId,
+			username: user,
+			password: hashedPass,
+			salt: salt,
+		}).then(() => {
+			console.log("Update Password user : " + user);
 			callback(true);
 		}).catch(err => {
 			console.log("[MONGO DB]: " + err);
