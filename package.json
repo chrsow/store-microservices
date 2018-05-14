@@ -10,7 +10,7 @@
     "faker": "^3.0.0",
     "json-schema-faker": "^0.1.13",
     "less-middleware": "^2.0.1",
-    "mongoose": "~3.6.13"
+    "mongoose": "^5.1.0"
   },
   "repository": {}
 }
