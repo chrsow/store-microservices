@@ -90,6 +90,7 @@ router.route('/reviews/:product_id')
 --  S T A R T  S E R V E R  -----------------------------------------------
 ------------------------------------------------------------------------ */
 
+app.get('/', (req, res) => res.sendStatus(200));
 app.use('/api', router);
 
 // get the app environment from Cloud Foundry

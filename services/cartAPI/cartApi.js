@@ -94,6 +94,7 @@ router.route('/checkout/verifyPayment').put(function(req, res) {
 --  S T A R T  S E R V E R  -----------------------------------------------
 ------------------------------------------------------------------------ */
 
+app.get('/', (req, res) => res.sendStatus(200));
 app.use('/api', router);
 
 // get the app environment from Cloud Foundry
