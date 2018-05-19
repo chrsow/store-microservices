@@ -51,8 +51,8 @@ router.use(allowCrossDomain);
 // import database
 var database = require('./database.js');
 
-// environment for auth
-var authURL = "http://localhost:8081/api/auth/"
+// environment for auth , cart
+var authURL = "http://localhost:8081/api/auth/";
 
 // middleware to use for all requests (JSON)
 router.use(function (req, res, next) {
@@ -93,22 +93,27 @@ router.route('/payment/buy').post(function (req, res) {
       'Authorization': token
     }
   }
-  request.post(option, function (error, response, body) {
-    var user = JSON.parse(body);
-    if (!user.message) res.json({ status: "ERROR", message: "invalid token or token expiration." });
-    else {
-      var username = user.message.username;
-      database.getCash(username).then(function (user_cash) {
-        var total = 1000;
-        if (!user_cash) res.json({ status: "ERROR", message: "Don't have this username." });
-        if (user_cash.cash - total < 0) res.json({ status: "ERROR", message: "insufficient funds." });
-        else {
-          database.buy(username, user_cash.cash - total);
-          res.json({ status: "OK" });
-        }
-      });
+  request.get(option, function (error, response, body) {
+
+    if (error) {
+      console.log(error);
+    } else {
+      var user = JSON.parse(body);
+      if (!user.message) res.json({ status: "ERROR", message: "invalid token or token expiration." });
+      else {
+        var username = user.message.username;
+        database.getCash(username).then(function (user_cash) {
+          var total = req.body.price;
+          if (!user_cash) res.json({ status: "ERROR", message: "Don't have this username." });
+          if (user_cash.cash - total < 0) res.json({ status: "ERROR", message: "insufficient funds." });
+          else {
+            database.buy(username, user_cash.cash - total);
+            res.json({ status: "OK" });
+          }
+        });
+      }
     }
-  });
+    });
 });
 
 // add cash
@@ -120,9 +125,8 @@ router.route('/payment/addcash').post(function (req, res) {
       'Authorization': token
     }
   }
-  request.post(option, function (error, response, body) {
+  request.get(option, function (error, response, body) {
     var cash = req.body.cash;
-    console.log(cash)
     var user = JSON.parse(body);
     if (!user.message) res.json({ status: "ERROR", message: "invalid token or token expiration." });
     else {
@@ -146,7 +150,7 @@ router.route('/payment/getcash').get(function (req, res) {
       'Authorization': token
     }
   }
-  request.post(option, function (error, response, body) {
+  request.get(option, function (error, response, body) {
     var user = JSON.parse(body);
     if (!user.message) res.json({ status: "ERROR", message: "invalid token or token expiration." });
     else {
