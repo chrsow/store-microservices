@@ -1,4 +1,4 @@
-const request = require('request-json');
+const request = require('request');
 
 module.exports = function (options) {
 
@@ -6,28 +6,31 @@ module.exports = function (options) {
 		options = {};
 	}
 
-	const url = options.auth_url  || process.env.AUTH_URI || 'http://localhost:8000';
-	const client = request.createClient(url);
+	const url = (options.auth_url  || process.env.AUTH_URI || 'http://localhost:8000') + '/api/auth/verify';
 
 	return (req, res, next) => {
 
 		const token = req.headers.authorization;
-		
-		console.log(token);
 
-		client.post(
-			'api/auth/verify',
-			{ token: token },
-			function (error, response, body) {
-				if (!body) {
-					console.log("cannot connect: " + url);
-					res.sendStatus(403);
-				} else if (body.valid) {
+		console.log("authenticating from " + url + " ..."); 
+
+		request.get({
+			url: url,
+			headers: req.headers,
+		}, function (error, response) {
+		
+			if (error || !response || !response.body) {
+				console.log("cannot connect: " + url);
+				res.sendStatus(403);
+			} else {
+				var data = JSON.parse(response.body);
+				if (data.valid) {
 					next();
 				} else {
 					res.sendStatus(403);
 				}
 			}
+		}
 		);
 	}
 }

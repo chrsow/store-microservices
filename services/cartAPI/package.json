@@ -8,8 +8,8 @@
   "dependencies": {
     "body-parser": "^1.13.1",
     "express": "4.12.x",
-    "request-json": "^0.6.3"
-    "mongoose": "^5.1.0"
+    "mongoose": "^5.1.0",
+    "request": "^2.86.0"
   },
   "repository": {}
 }
