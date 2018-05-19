@@ -23,6 +23,23 @@ const tokenTimeLimit = parseInt(process.env.TOKEN_TIME_LIMIT) || (60 * 30);
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
+// tmp: dont do this in production
+var allowCrossDomain = function(req, res, next) {
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+	// intercept OPTIONS method
+	if ('OPTIONS' == req.method) {
+		res.send(200);
+	}
+	else {
+		next();
+	}
+};
+
+app.use(allowCrossDomain);
+
 const verify_jwt = (token, callback) => {
 	jwt.verify(
 		token,
@@ -64,6 +81,9 @@ router.post("/login", (req, res) => {
 				},
 			);
 			
+
+			res.set("store-session", token);
+
 			res.json({
 				success: 1,
 				message: token,
@@ -79,20 +99,11 @@ router.post("/login", (req, res) => {
 	});
 });
 
-router.post("/verify", (req, res) => {
+router.get("/verify", (req, res) => {
 	
-	const data = req.body;
+	const token = req.headers.authorization;
 
-	if (!data.tokon && req.headers.authorization) {
-		data.token = req.headers.authorization;
-	}
-
-	if (!data.token) {
-		res.json({ valid: 0, message: "No jwt token", });
-		return;
-	}
-
-	verify_jwt(data.token, (error, decoded) => {
+	verify_jwt(token, (error, decoded) => {
 		if (error) {
 			res.json({ valid: 0, error: error, });
 		} else {
