@@ -5,15 +5,23 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:phirasit/authentication-service.git"
   },
   "author": "Phirasit Charoenchitseriwong",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "ejs": "^2.6.1",
     "express": "^4.16.3",
     "jsonwebtoken": "^8.2.1",
-    "mongodb-stitch": "^3.1.2",
+    "mongodb": "^3.1.0-beta4",
+    "path": "^0.12.7",
+    "request-json": "^0.6.3",
     "sha256": "^0.2.0"
   }
 }

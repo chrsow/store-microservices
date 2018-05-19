@@ -1,12 +1,15 @@
 FROM node
 
+# Set work directory
+WORKDIR /src
+
 # Bundle app source
-COPY . /src 
+COPY package*.json ./
+COPY . .
 
 # Install app dependencies
-RUN cd /src;
 RUN npm install
 
 EXPOSE  8080
-WORKDIR /src
+
 CMD ["npm", "start"]

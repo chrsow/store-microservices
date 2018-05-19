@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express();
+const ui = express();
 const app = express();
+
+ui.set('view engine', 'ejs');
+
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 // get certificate
 const fs = require('fs');
@@ -13,7 +18,7 @@ const cert = {
 };
 
 // time configuration
-const tokenTimeLimit = parseInt(process.env.TOKEN_TIME_LIMIT) | (60 * 30);
+const tokenTimeLimit = parseInt(process.env.TOKEN_TIME_LIMIT) || (60 * 30);
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -58,7 +63,7 @@ router.post("/login", (req, res) => {
 					expiresIn: tokenTimeLimit,
 				},
 			);
-
+			
 			res.json({
 				success: 1,
 				message: token,
@@ -67,7 +72,7 @@ router.post("/login", (req, res) => {
 		} else {
 
 			res.json({
-				success: 1,
+				success: 0,
 				message: "Invalid Credential",
 			});
 		}
@@ -78,6 +83,10 @@ router.post("/verify", (req, res) => {
 	
 	const data = req.body;
 
+	if (!data.tokon && req.headers.authorization) {
+		data.token = req.headers.authorization;
+	}
+
 	if (!data.token) {
 		res.json({ valid: 0, message: "No jwt token", });
 		return;
@@ -85,7 +94,7 @@ router.post("/verify", (req, res) => {
 
 	verify_jwt(data.token, (error, decoded) => {
 		if (error) {
-			res.json({ valid: 0, message: {'message': error}, });
+			res.json({ valid: 0, error: error, });
 		} else {
 			res.json({ valid: 1, message: decoded, });
 		}
@@ -98,9 +107,9 @@ router.post("/register", (req, res) => {
 	const data = req.body;
 	if (data == undefined) {
 		res.json({ success: 0, message: "No data", });
-	} else if (data.username == undefined) {
+	} else if (data.username == undefined || data.username == "") {
 		res.json({ success: 0, message: "No username", });
-	} else if (data.password == undefined) {
+	} else if (data.password == undefined || data.password == "") {
 		res.json({ success: 0, message: "No password", });
 	} else {
 		db.hasUser(data.username, result => {
@@ -122,7 +131,6 @@ router.post("/register", (req, res) => {
 
 // update password
 router.post("/update", (req, res) => {
-
 
 	const data = req.body;
 	if (!data) {
@@ -156,12 +164,14 @@ router.post("/update", (req, res) => {
 			}
 		});
 	}
-	
 });
 
-const serverPort = process.env.SERVER_PORT | "8080";
+app.get('/', (req, res) => res.sendStatus(200));
 
-app.use('/api', router);
+app.use('/auth', ui);
+app.use('/api/auth', router);
+
+const serverPort = process.env.SERVER_PORT || "8080";
 
 app.listen(serverPort, () => {
 	console.log("listening to : " + serverPort);
