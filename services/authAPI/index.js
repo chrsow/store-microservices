@@ -81,7 +81,8 @@ router.post("/login", (req, res) => {
 				},
 			);
 			
-			req.headers.authorization = token;
+
+			res.set("store-session", token);
 
 			res.json({
 				success: 1,
