@@ -54,6 +54,10 @@ router.use(function(req, res, next) {
     next();
 });
 
+// use authentication
+const auth = require('./auth.js')();
+router.use(auth);
+
 /* ------------------------------------------------------------------------
 --  C A R T  A P I  -------------------------------------------------------
 ------------------------------------------------------------------------ */
@@ -69,8 +73,10 @@ router.route('/cart').get(function(req, res) {
 
 // get the number of items in the cart (nav bar)
 router.route('/cart/count').get(function(req, res) {
-	Product.count({ inCart: true }, function(err, count){
-		res.json({ count: count });
+	auth(req, res, () => {
+		Product.count({ inCart: true }, function(err, count){
+			res.json({ count: count });
+		});
 	});
 });
 
