@@ -23,6 +23,23 @@ const tokenTimeLimit = parseInt(process.env.TOKEN_TIME_LIMIT) || (60 * 30);
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
+// tmp: dont do this in production
+var allowCrossDomain = function(req, res, next) {
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+	// intercept OPTIONS method
+	if ('OPTIONS' == req.method) {
+		res.send(200);
+	}
+	else {
+		next();
+	}
+};
+
+app.use(allowCrossDomain);
+
 const verify_jwt = (token, callback) => {
 	jwt.verify(
 		token,
