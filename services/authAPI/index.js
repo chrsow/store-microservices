@@ -116,6 +116,9 @@ router.get("/verify", (req, res) => {
 router.post("/register", (req, res) => {
 
 	const data = req.body;
+	console.log(data.username);
+	console.log(data.password);
+	
 	if (data == undefined) {
 		res.json({ success: 0, message: "No data", });
 	} else if (data.username == undefined || data.username == "") {
