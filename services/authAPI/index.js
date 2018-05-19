@@ -64,6 +64,8 @@ router.post("/login", (req, res) => {
 				},
 			);
 			
+			req.headers.authorization = token;
+
 			res.json({
 				success: 1,
 				message: token,
