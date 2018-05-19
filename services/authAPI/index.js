@@ -79,20 +79,11 @@ router.post("/login", (req, res) => {
 	});
 });
 
-router.post("/verify", (req, res) => {
+router.get("/verify", (req, res) => {
 	
-	const data = req.body;
+	const token = req.headers.authorization;
 
-	if (!data.tokon && req.headers.authorization) {
-		data.token = req.headers.authorization;
-	}
-
-	if (!data.token) {
-		res.json({ valid: 0, message: "No jwt token", });
-		return;
-	}
-
-	verify_jwt(data.token, (error, decoded) => {
+	verify_jwt(token, (error, decoded) => {
 		if (error) {
 			res.json({ valid: 0, error: error, });
 		} else {

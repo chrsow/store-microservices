@@ -54,6 +54,9 @@ router.use(function(req, res, next) {
     next();
 });
 
+// use autheticaiton
+const auth = require('./auth.js')();
+
 /* ------------------------------------------------------------------------
 --  R E V I E W S  A P I  -------------------------------------------------
 ------------------------------------------------------------------------ */
@@ -69,7 +72,7 @@ router.route('/reviews/:product_id')
 	})
 
 	// add a new review for a product
-	.post(function(req, res) {
+	.post(auth, function(req, res) {
 
 			var review = Review();
 			review.productId = req.body.productId;
